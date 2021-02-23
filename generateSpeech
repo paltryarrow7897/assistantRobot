@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+
+import boto3
+import time
+from pydub import AudioSegment
+from pydub.playback import play
+
+timestr = time.strftime("%Y%m%d_%H%M%S")
+
+def generateSpeech(text):
+  polly = boto3.client("polly")
+  response = polly.synthesize_speech(VoiceId="Aditi",
+                                     OutputFormat='mp3',
+                                     Text=text)
+
+  filename = "speech_{}.mp3".format(timestr)
+  audiofile = filename
+  file = open(audiofile, 'wb')
+  file.write(response['AudioStream'].read())
+  file.close()
+
+def main():
+  generateSpeech("This is a test")
+  sound = AudioSegment.from_wav(filename)
+  play(sound)
