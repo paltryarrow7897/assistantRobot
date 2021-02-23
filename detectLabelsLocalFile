@@ -37,10 +37,10 @@ def detectLabels(photo):
       differenceY = midImageY-midBoxY
       
       if differenceX >= 0: 
-        # Insert what to do if positive difference, e.g., turn right.
+        # Insert what to do if positive difference, e.g., turn left.
         rgb = "#0000ff"
       else:
-        # Insert what to do if negative difference, e.g., turn left.
+        # Insert what to do if negative difference, e.g., turn right.
         rgb = "#ff0000"
 
       #print("Bounding box")
