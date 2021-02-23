@@ -3,7 +3,9 @@
 import boto3
 from PIL import Image, ImageDraw, ExifTags, ImageColor
 
-def detect_faces_local_file(photo):
+# detectLabels takes image as input and returns difference between image and box midpoints.
+# this function should be called when detectHotwords becomes TRUE.
+def detectFaces(photo):
   client=boto3.client('rekognition')
 
   with open(photo, 'rb') as image:
@@ -13,10 +15,10 @@ def detect_faces_local_file(photo):
   imgWidth, imgHeight = img.size
   midImageX = imgWidth/2
   midImageY = imgHeight/2
-  draw = ImageDraw.Draw(img)
+  #draw = ImageDraw.Draw(img)
 
-  print("Face Detection: ")
-
+  #print("Face Detection: ")
+  # get box data
   for faceDetail in response['FaceDetails']:
     box = faceDetail['BoundingBox']
     left = imgWidth * box['Left']
@@ -32,10 +34,14 @@ def detect_faces_local_file(photo):
     differenceY = midImageY - midBoxY
 
     if differenceX >= 0:
+      # Insert what to do if positive difference, e.g., turn left.
       rgb = "#0000ff"
     else:
+      # Insert what to do if positive difference, e.g., turn right.
       rgb = "#ff0000"
 
+    """ used for debugging/testing. prints and draws image and box coordinates.
+    
     print("Image: ")
     print("Image width: "+str(imgWidth))
     print("Image Height: "+str(imgHeight))
@@ -57,16 +63,15 @@ def detect_faces_local_file(photo):
     draw.line([midImageX,midImageY,midBoxX,midImageY], fill=rgb, width=1)
     draw.rectangle([left,top,right,bottom], outline='#00d400')
 
-  img.show()
+  img.show() """
 
-  return "Detected Faces in Image: " + str(len(response['FaceDetails'])) + "\n"
+  return " " #Detected Faces in Image: " + str(len(response['FaceDetails'])) + "\n"
 
-
+# Not used when running, only for debugging/testing.
 def main():
   photo='/home/pi/Pictures/20201008/IMG_20201008.jpg'
   face_count=detect_faces_local_file(photo)
   print(face_count)
-
 
 if __name__ == "__main__":
   main()
