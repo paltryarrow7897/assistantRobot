@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+
+import boto3
+from PIL import Image, ImageDraw, ExifTags, ImageColor
+
+def detect_faces_local_file(photo):
+  client=boto3.client('rekognition')
+
+  with open(photo, 'rb') as image:
+    response = client.detect_faces(Image={'Bytes': image.read()})
+
+  img = Image.open(photo)
+  imgWidth, imgHeight = img.size
+  midImageX = imgWidth/2
+  midImageY = imgHeight/2
+  draw = ImageDraw.Draw(img)
+
+  print("Face Detection: ")
+
+  for faceDetail in response['FaceDetails']:
+    box = faceDetail['BoundingBox']
+    left = imgWidth * box['Left']
+    top = imgHeight * box['Top']
+    width = imgWidth * box['Width']
+    height = imgHeight * box['Height']
+    right = left+width
+    bottom = top+height
+
+    midBoxX = (left+right)/2
+    midBoxY = (top+bottom)/2
+    differenceX = midImageX - midBoxX
+    differenceY = midImageY - midBoxY
+
+    if differenceX >= 0:
+      rgb = "#0000ff"
+    else:
+      rgb = "#ff0000"
+
+    print("Image: ")
+    print("Image width: "+str(imgWidth))
+    print("Image Height: "+str(imgHeight))
+    print()
+    print("Bounding Box: ")
+    print("Left: "+str(left))
+    print("Right: "+str(right))
+    print("Top: "+str(top))
+    print("Bottom: "+str(bottom))
+    print("Width: "+str(width))
+    print("Height: "+str(height))
+    print()
+    print("Image midpoint X: "+str(midImageX))
+    print("Image midpoint Y: "+str(midImageY))
+    print("Box midpoint X: "+str(midBoxX))
+    print("Box midpoint Y: "+str(midBoxY))
+    print("Image midpoint - Box midpoint: "+str(midImageX-midBoxX))
+
+    draw.line([midImageX,midImageY,midBoxX,midImageY], fill=rgb, width=1)
+    draw.rectangle([left,top,right,bottom], outline='#00d400')
+
+  img.show()
+
+  return "Detected Faces in Image: " + str(len(response['FaceDetails'])) + "\n"
+
+
+def main():
+  photo='/home/pi/Pictures/20201008/IMG_20201008.jpg'
+  face_count=detect_faces_local_file(photo)
+  print(face_count)
+
+
+if __name__ == "__main__":
+  main()
