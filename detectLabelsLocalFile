@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+
+import boto3
+from PIL import Image, ImageDraw, ExifTags, ImageColor
+
+def detect_labels_local_file(photo):
+  client=boto3.client('rekognition')
+
+  with open(photo, 'rb') as image:
+    response = client.detect_labels(Image={'Bytes': image.read()},
+                                   MaxLabels=5,
+                                   MinConfidence=90)
+
+  img = Image.open(photo)
+  imgWidth, imgHeight = img.size
+  draw = ImageDraw.Draw(img)
+  midImageX = imgWidth/2
+  midImageY = imgHeight/2
+
+  #print('Detected labels in ' + photo)
+
+  for label in response['Labels']:
+    print ("Label: " + label['Name'] + " " + str(label['Confidence']))
+    for instance in label["Instances"]:
+      top = imgHeight * instance["BoundingBox"]["Top"]
+      left = imgWidth * instance["BoundingBox"]["Left"]
+      width = imgWidth * instance["BoundingBox"]["Width"]
+      height = imgHeight * instance["BoundingBox"]["Height"]
+      right = top + width
+      bottom = top + height
+
+      midBoxX = (left+right)/2
+      midBoxY = (top+bottom)/2
+      differenceX = midImageX-midBoxX
+      differenceY = midImageY-midBoxY
+      if differenceX >= 0:
+        rgb = "#0000ff"
+      rgb = "#ff0000"
+
+      #print("Bounding box")
+      #print("Top: "+str(top))
+      #print("Left: "+str(left))
+      #print("Width: "+str(width))
+      #print("Height: "+str(height))
+      draw.rectangle([left,top,right,bottom], outline='#00d400')
+      draw.line([midImageX,midImageY,midBoxX,midImageY],fill=rgb,width=1)
+
+    #print("Parents:")
+    #for parent in label["Parents"]:
+      #print(" " + parent["Name"])
+    #print("-------------")
+
+  img.show()
+
+  return #"Detected Labels in Image: " + str(len(response['Labels'])) + "\n"
+
+
+def main():
+  photo='/home/pi/Pictures/20210216/IMG_20210216_150929.jpg'
+  label_count=detect_labels_local_file(photo)
+  print(label_count)
+
+
+if __name__ == "__main__":
+  main()
