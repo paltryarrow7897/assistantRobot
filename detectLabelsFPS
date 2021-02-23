@@ -5,7 +5,7 @@ import cv2
 import time
 import boto3
 from PIL import Image, ImageDraw, ExifTags, ImageColor
-from detectLabels import detectLabels
+from detectLabelsLocalFile import detectLabels
 
 # create directories for storing images. new directory is created every day.
 directory = time.strftime("%Y%m%d")
