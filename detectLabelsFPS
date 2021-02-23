@@ -5,23 +5,29 @@ import cv2
 import time
 import boto3
 from PIL import Image, ImageDraw, ExifTags, ImageColor
-from detect_labels_local_file import detectLabels
+from detectLabels import detectLabels
 
+# create directories for storing images. new directory is created every day.
 directory = time.strftime("%Y%m%d")
 parent_directory = "/home/pi/Pictures/"
 timestr = time.strftime("%Y%m%d_%H%M%S")
 path = os.path.join(parent_directory, directory)
-if not path:
+isDir = os.path.isdir(path)
+
+if not isDir:
   os.mkdir(path)
 
+# define frame rate for detectLabels to work for multiple frames.
 frame_rate = 0.25
 prev = 0
 img_counter = 1
 
+# sets resolution to 640x480 which is later further scaled down to 40%.
 cv = cv2.VideoCapture(0)
 cv.set(3,640)
 cv.set(4,480)
 
+# start capturing infinitely.
 while True:
   ret,frame = cv.read()
   half = cv2.resize(frame, (0,0), fx=0.4, fy=0.4)
@@ -36,6 +42,7 @@ while True:
     labels=detectLabels(img_name)
     print(labels)
 
+  # break loop if ESC is pressed.
   k = cv2.waitKey(1)
   if k%256 == 27:
     break
