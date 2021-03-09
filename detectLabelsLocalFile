@@ -15,6 +15,7 @@ def detectLabels(photo):
 
   img = Image.open(photo)
   imgWidth, imgHeight = img.size
+  imgArea = imgWidth * imgHeight
   #draw = ImageDraw.Draw(img)
   midImageX = imgWidth/2
   midImageY = imgHeight/2
@@ -30,6 +31,7 @@ def detectLabels(photo):
       height = imgHeight * instance["BoundingBox"]["Height"]
       right = top + width
       bottom = top + height
+      boxArea = width * height
 
       midBoxX = (left+right)/2
       midBoxY = (top+bottom)/2
@@ -43,6 +45,9 @@ def detectLabels(photo):
         # Insert what to do if negative difference, e.g., turn right.
         rgb = "#ff0000"
 
+      if boxArea >= 0.4 * imgArea:
+        # Insert code to step back.
+      
       #print("Bounding box")
       #print("Top: "+str(top))
       #print("Left: "+str(left))
